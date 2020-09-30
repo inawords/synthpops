@@ -21,7 +21,9 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
                     average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                     with_non_teaching_staff=False,
                     average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-                    rand_seed=None):
+                    rand_seed=None,
+                    country_location='usa', state_location='Washington',
+                    location='seattle_metro', sheet_name='United States of America'):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
     Args:
@@ -48,6 +50,10 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         staff_age_min (int)                     : The minimum age for non teaching staff.
         staff_age_max (int)                     : The maximum age for non teaching staff.
         rand_seed (int)                         : Start point random sequence is generated from.
+        country_location (str)                  : Country location
+        state_location (str)                    : State location
+        location (str)                          : Location
+        sheet_name (str)                        : Sheet name
 
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
@@ -80,10 +86,6 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
 
     max_contacts = sc.mergedicts(default_max_contacts, max_contacts)
 
-    country_location = 'usa'
-    state_location = 'Washington'
-    location = 'seattle_metro'
-    sheet_name = 'United States of America'
 
     options_args = {}
     options_args['use_microstructure'] = True
@@ -126,12 +128,13 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
                                                                     average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
                                                                     return_popdict=True )
         else:
+            # TODO: @anne or make this configurable
             population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name,
                                                           with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
                                                           average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,
                                                           average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
                                                           return_popdict=True,
-                                                          )
+                                                          plot=True)
 
     # Semi-heavy-lift 2: trim them to the desired numbers
     population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)
