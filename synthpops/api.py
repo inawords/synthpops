@@ -17,13 +17,13 @@ popsize_choices = [5000,
 
 def make_population(n=None, max_contacts=None, generate=None, with_industry_code=False, with_facilities=False,
                     use_two_group_reduction=True, average_LTCF_degree=20, ltcf_staff_age_min=20, ltcf_staff_age_max=60,
-                    with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
+                    location='seattle_metro', state_location='Washington', country_location='usa', sheet_name='United States of America',
+                    school_enrollment_counts_available=False, with_school_types=False, school_mixing_type='random', average_class_size=20, inter_grade_mixing=0.1,
                     average_student_teacher_ratio=20, average_teacher_teacher_degree=3, teacher_age_min=25, teacher_age_max=75,
                     with_non_teaching_staff=False,
                     average_student_all_staff_ratio=15, average_additional_staff_degree=20, staff_age_min=20, staff_age_max=75,
-                    rand_seed=None,
-                    country_location='usa', state_location='Washington',
-                    location='seattle_metro', sheet_name='United States of America'):
+                    use_default=False,
+                    rand_seed=None):
     '''
     Make a full population network including both people (ages, sexes) and contacts using Seattle, Washington cached data.
     Args:
@@ -36,6 +36,11 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         average_LTCF_degree (float)             : default average degree in long term care facilities.
         ltcf_staff_age_min (int)                : Long term care facility staff minimum age.
         ltcf_staff_age_max (int)                : Long term care facility staff maximum age.
+        location (str)                          : Location
+        state_location (str)                    : State location
+        country_location (str)                  : Country location
+        sheet_name (str)                        : Sheet name
+        school_enrollment_counts_available (bool) : If True, a list of school sizes is available and a count of the sizes can be constructed.
         with_school_types (bool)                : If True, creates explicit school types.
         school_mixing_type (str or dict)                : The mixing type for schools, 'random', 'age_clustered', or 'age_and_class_clustered' if string, and a dictionary of these by school type otherwise.
         average_class_size (float)              : The average classroom size.
@@ -49,11 +54,8 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
         average_additional_staff_degree (float) : The average number of contacts per additional non teaching staff in schools.
         staff_age_min (int)                     : The minimum age for non teaching staff.
         staff_age_max (int)                     : The maximum age for non teaching staff.
+        use_default (bool)                        : If True, try to first use the other parameters to find data specific to the location under study; otherwise, return default data drawing from Seattle, Washington.
         rand_seed (int)                         : Start point random sequence is generated from.
-        country_location (str)                  : Country location
-        state_location (str)                    : State location
-        location (str)                          : Location
-        sheet_name (str)                        : Sheet name
 
     Returns:
         network (dict): A dictionary of the full population with ages and connections.
@@ -128,13 +130,11 @@ def make_population(n=None, max_contacts=None, generate=None, with_industry_code
                                                                     average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
                                                                     return_popdict=True )
         else:
-            # TODO: @anne or make this configurable
             population = sp.generate_synthetic_population(n, sp.datadir, location=location, state_location=state_location, country_location=country_location, sheet_name=sheet_name,
-                                                          with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
+                                                          school_enrollment_counts_available=school_enrollment_counts_available, with_school_types=with_school_types, school_mixing_type=school_mixing_type, average_class_size=average_class_size, inter_grade_mixing=inter_grade_mixing,
                                                           average_student_teacher_ratio=average_student_teacher_ratio, average_teacher_teacher_degree=average_teacher_teacher_degree, teacher_age_min=teacher_age_min, teacher_age_max=teacher_age_max,
                                                           average_student_all_staff_ratio=average_student_all_staff_ratio, average_additional_staff_degree=average_additional_staff_degree, staff_age_min=staff_age_min, staff_age_max=staff_age_max,
-                                                          return_popdict=True,
-                                                          plot=True)
+                                                          plot=True,  return_popdict=True, use_default=use_default)
 
     # Semi-heavy-lift 2: trim them to the desired numbers
     population = sp.trim_contacts(population, trimmed_size_dic=max_contacts, use_clusters=False)

@@ -1,5 +1,4 @@
 import synthpops as sp
-import covasim as cova
 import covasim as cv
 import sciris as sc
 
